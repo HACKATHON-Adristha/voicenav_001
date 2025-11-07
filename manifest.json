@@ -3,7 +3,7 @@
   "name": "VoiceNav",
   "version": "1.0",
   "description": "Voice-guided web navigation assistant for visually impaired users.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage","microphone"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup/popup.html",
