@@ -165,3 +165,49 @@ button.listening {
   0%, 100% { height: 5px; }
   50% { height: 25px; }
 }
+
+#logBox {
+  margin-top: 15px;
+  padding: 12px;
+  background: #1e1e1e;
+  border-radius: 6px;
+  text-align: left;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#debugLog {
+  margin: 0;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #d4d4d4;
+  white-space: pre-wrap;
+}
+
+#logBox strong {
+  color: black;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+/* Custom scrollbar for the log box */
+#logBox::-webkit-scrollbar {
+  width: 8px;
+}
+
+#logBox::-webkit-scrollbar-track {
+  background: #2d2d2d;
+  border-radius: 4px;
+}
+
+#logBox::-webkit-scrollbar-thumb {
+  background: #505050;
+  border-radius: 4px;
+}
+
+#logBox::-webkit-scrollbar-thumb:hover {
+  background: #606060;
+}
