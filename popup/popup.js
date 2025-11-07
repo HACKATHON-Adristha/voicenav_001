@@ -1,109 +1,136 @@
-let recognition;
+// popup.js — VoiceNav (Final Version)
+console.log("✅ VoiceNav popup.js loaded and ready.");
+
+// Get UI elements
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 const statusEl = document.getElementById("status");
 const commandText = document.getElementById("commandText");
-const debugLog = document.getElementById("debugLog");
 
+let recognition;
+
+// Helper log function
 function log(msg) {
   console.log(msg);
-  debugLog.textContent += msg + "\n";
 }
 
-log("✅ popup.js loaded and ready.");
-
-async function requestMicrophonePermission() {
-  log("🎤 Requesting microphone permission...");
-  try {
-    await navigator.mediaDevices.getUserMedia({ audio: true });
-    log("✅ Microphone permission granted.");
-    return true;
-  } catch (err) {
-    log("🚫 Microphone permission blocked: " + err.message);
-    alert("Please allow microphone access in Chrome settings to use VoiceNav.");
-    return false;
-  }
-}
-
+// 🧠 Function: Start Listening
 async function startListening() {
-  log("🎙 Start Listening clicked.");
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Speech recognition not supported in this browser. Please use Google Chrome.");
-    log("❌ SpeechRecognition API not found.");
-    return;
-  }
-
-  const micAllowed = await requestMicrophonePermission();
-  if (!micAllowed) {
-    log("🔒 Cannot start listening — mic access denied.");
-    return;
-  }
-
   try {
+    log("🎙 Start Listening clicked.");
+    statusEl.textContent = "Status: Requesting microphone access...";
+    commandText.textContent = "";
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    // ✅ Step 1: Ask for microphone permission first
+    try {
+      log("🎤 Requesting microphone permission...");
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      log("✅ Microphone permission granted.");
+    } catch (err) {
+      log("🚫 Microphone permission blocked: " + err.message);
+      alert(
+        "VoiceNav needs microphone access.\n\nPlease click the microphone icon in Chrome’s address bar and choose 'Allow'."
+      );
+      statusEl.textContent = "Status: Mic permission denied.";
+      return;
+    }
+
+    // ✅ Step 2: Initialize recognition
     recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.continuous = false;
+    recognition.interimResults = false;
 
+    // On recognition start
     recognition.onstart = () => {
       statusEl.textContent = "Status: Listening...";
       startBtn.disabled = true;
       stopBtn.disabled = false;
-      log("🟢 Recognition started successfully.");
+      log("🎧 Listening...");
     };
 
+    // When a result is recognized
     recognition.onresult = async (event) => {
       const text = event.results[0][0].transcript;
       commandText.textContent = text;
       statusEl.textContent = "Status: Processing...";
-      log(`🗣 Heard: "${text}"`);
+      log("🗣 Recognized text:", text);
 
-      try {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab) {
-          chrome.tabs.sendMessage(tab.id, { type: "VOICE_COMMAND", text });
-          log(`📨 Sent command to content.js for tab ${tab.id}`);
-        } else {
-          log("⚠️ No active tab found.");
-        }
-      } catch (err) {
-        log("❌ Error sending command: " + err.message);
+      // Send command to active tab
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab) {
+        chrome.tabs.sendMessage(tab.id, { type: "VOICE_COMMAND", text });
+        log("📤 Command sent to content.js:", text);
+      } else {
+        log("⚠️ No active tab found.");
       }
 
       statusEl.textContent = "Status: Idle";
     };
 
+    // 🔧 Improved Error Handler
     recognition.onerror = (e) => {
-      console.error(e);
+      console.error("❌ Recognition error:", e.error);
       statusEl.textContent = "Error: " + e.error;
-      log("❌ Recognition error: " + e.error);
-      if (e.error === "not-allowed") {
-        log("🔒 Microphone permission denied. Check Chrome settings → Site settings → Microphone.");
+
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+        console.warn("🔒 Microphone permission denied or blocked.");
+        alert(
+          "Microphone access is blocked.\n\nTo fix this:\n1. Click the microphone icon in Chrome's address bar.\n2. Select 'Always allow'.\n3. Reload the page and try again."
+        );
+        statusEl.textContent = "Status: Mic access blocked.";
+
+        // Retry permission request automatically after 2 seconds
+        setTimeout(() => {
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(() => console.log("🎤 Microphone re-allowed, ready for next try."))
+            .catch(() => console.warn("🚫 Still blocked, please allow manually."));
+        }, 2000);
+      } else if (e.error === "network") {
+        alert("Network error — please check your internet connection.");
+      } else if (e.error === "no-speech") {
+        statusEl.textContent = "No speech detected. Please try again.";
+      } else {
+        alert("An error occurred: " + e.error);
       }
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
     };
 
+    // On recognition end
     recognition.onend = () => {
+      log("🔚 Recognition ended.");
       startBtn.disabled = false;
       stopBtn.disabled = true;
       statusEl.textContent = "Status: Idle";
-      log("🔚 Recognition ended.");
     };
 
+    // ✅ Start recognition
     recognition.start();
-  } catch (error) {
-    log("💥 Exception starting recognition: " + error.message);
+  } catch (err) {
+    console.error("❌ Unexpected error in startListening():", err);
+    statusEl.textContent = "Error: " + err.message;
   }
 }
 
+// 🛑 Stop Listening
 function stopListening() {
   if (recognition) {
     recognition.stop();
-    log("🛑 Stop button clicked. Recognition stopped.");
-  } else {
-    log("⚠️ Tried to stop but recognition is undefined.");
+    statusEl.textContent = "Status: Stopped.";
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    log("🛑 Listening stopped by user.");
   }
 }
 
+// Event listeners
 startBtn.addEventListener("click", startListening);
 stopBtn.addEventListener("click", stopListening);
