@@ -55,14 +55,14 @@ async function startListening() {
       log("🎧 Listening...");
     };
 
-    // When a result is recognized
-    recognition.onresult = async (event) => {
+   // When a result is recognized
+    recognition.onresult = (event) => {
       const text = event.results[0][0].transcript;
       commandText.textContent = text;
-      statusEl.textContent = "Status: Processing...";
+      statusEl.textContent = "Status: AI Processing...";
       log("🗣 Recognized text:", text);
 
-      // Send command to active tab
+    // send command to active tab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab) {
         chrome.tabs.sendMessage(tab.id, { type: "VOICE_COMMAND", text });
