@@ -7,17 +7,30 @@
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <h1>🎙 VoiceNav</h1>
+  <div class="container">
+    <h1>🎙 VoiceNav</h1>
 
-  <button id="startBtn">Start Listening</button>
-  <button id="stopBtn" disabled>Stop</button>
+    <div class="buttons">
+      <button id="startBtn">Start Listening</button>
+      <button id="stopBtn" disabled>Stop</button>
+    </div>
 
-  <p id="status">Status: Idle</p>
-  <p>Last command: <span id="commandText">None</span></p>
+    <p id="status">Status: <span class="status-text">Idle</span></p>
+    <p>Last command: <span id="commandText">None</span></p>
 
-  <div id="logBox" style="text-align:left; max-height:120px; overflow:auto; background:#f4f4f4; padding:5px; border-radius:6px; font-size:12px; color:#333;">
-    <strong>Debug Log:</strong>
-    <pre id="debugLog"></pre>
+    <div id="logBox">
+      <strong>Debug Log:</strong>
+      <pre id="debugLog"></pre>
+
+      <!-- Voice Wave Animation -->
+      <div id="voiceWave" class="hidden">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+    </div>
   </div>
 
   <script src="popup.js"></script>
