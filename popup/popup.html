@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceNav</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <h1>🎙 VoiceNav</h1>
+
+  <button id="startBtn">Start Listening</button>
+  <button id="stopBtn" disabled>Stop</button>
+
+  <p id="status">Status: Idle</p>
+  <p>Last command: <span id="commandText">None</span></p>
+
+  <div id="logBox" style="text-align:left; max-height:120px; overflow:auto; background:#f4f4f4; padding:5px; border-radius:6px; font-size:12px; color:#333;">
+    <strong>Debug Log:</strong>
+    <pre id="debugLog"></pre>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
