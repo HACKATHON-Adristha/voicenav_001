@@ -98,7 +98,7 @@ Examples:
       if (chrome.runtime.lastError) {
         console.warn("⚠️ sendMessage failed, trying reinjection:", chrome.runtime.lastError.message);
         // Inject content script and retry
-        chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] }, () => {
+        chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content/content.js"] }, () => {
           chrome.tabs.sendMessage(tab.id, { type: "EXECUTE_COMMAND", command }, (retryResp) => {
             if (chrome.runtime.lastError) {
               console.error("❌ Retry sendMessage failed:", chrome.runtime.lastError.message);
@@ -157,7 +157,7 @@ async function handleFallbackIntent(userText, sendResponse) {
     chrome.tabs.sendMessage(tab.id, { type: "VOICE_COMMAND", text: userText }, (resp) => {
       if (chrome.runtime.lastError) {
         // reinject & retry
-        chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] }, () => {
+        chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content/content.js"] }, () => {
           chrome.tabs.sendMessage(tab.id, { type: "VOICE_COMMAND", text: userText });
         });
         sendResponse({ status: "error", message: "Reinjected content script for chat." });
