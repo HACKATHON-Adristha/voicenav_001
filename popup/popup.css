@@ -1,213 +1,155 @@
-/* Base styles */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #0e0f13, #050608 90%);
+  color: #f8f9fa;
+  border-radius: 20px;
+  width: 320px;
+  padding: 8px;
   margin: 0;
-  padding: 0;
   text-align: center;
-  width: 340px;
-  background: #1b1b27; /* dark professional background */
-  color: #e0e0e0;
-}
-
-.container {
-  padding: 15px;
-}
-
-/* Header */
-h1 {
-  font-size: 22px;
-  margin-bottom: 15px;
-  color: #ffa500; /* soft gold accent */
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-}
-
-/* Buttons */
-button {
-  margin: 8px;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  background: linear-gradient(145deg, #3a3aff, #1a1aee); /* muted professional blue */
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  transition: 0.3s, box-shadow 0.3s;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.5);
-}
-
-button:disabled {
-  background: #555;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* Glowing start button when active */
-button.listening {
-  animation: glowButton 1.2s infinite alternate;
-}
-
-@keyframes glowButton {
-  from { box-shadow: 0 0 6px #3a3aff, 0 0 12px #1a1aee; }
-  to { box-shadow: 0 0 12px #3a3aff, 0 0 24px #1a1aee; }
-}
-
-/* Status & command */
-#status {
-  font-weight: bold;
-  margin-top: 15px;
-  font-size: 14px;
-}
-
-.status-text {
-  color: #4caf50; /* muted green */
-  transition: color 0.3s, text-shadow 0.3s;
-}
-
-/* Glowing/pulsing status text */
-.status-text.listening {
-  animation: pulseGlow 1.2s infinite alternate;
-}
-
-@keyframes pulseGlow {
-  from { color: #4caf50; text-shadow: 0 0 3px #4caf50; }
-  to { color: #00ffcc; text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc; }
-}
-
-/* Card-style Debug log & voice wave container */
-#logBox {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: left;
-  max-height: 180px;
-  overflow-y: auto;
-  background: linear-gradient(145deg, #2a2a40, #1f1f33); /* professional dark gradient */
-  padding: 15px;
-  margin-top: 15px;
-  border-radius: 16px;
-  font-size: 12px;
-  color: #cfcfcf;
-  /* Glow effect using box-shadow */
-  box-shadow: 0 0 0 1px rgba(58, 58, 255, 0.5), 5px 5px 15px rgba(0,0,0,0.5), -5px -5px 15px rgba(30,30,50,0.3);
-  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
-}
-
-#logBox:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 0 2px rgba(26, 26, 238, 0.7), 8px 8px 20px rgba(0,0,0,0.6), -8px -8px 20px rgba(30,30,50,0.4);
-  background: linear-gradient(145deg, #35356b, #28284c);
-}
-
-/* Scrollbar styling */
-#logBox::-webkit-scrollbar {
-  width: 6px;
-}
-
-#logBox::-webkit-scrollbar-thumb {
-  background: #3a3aff;
-  border-radius: 3px;
-  transition: background 0.3s;
-}
-
-#logBox::-webkit-scrollbar-thumb:hover {
-  background: #1a1aee;
-}
-
-#logBox::-webkit-scrollbar-track {
-  background: #1b1b27;
-}
-
-/* Debug log text animation for new entries */
-#debugLog span.new-log {
-  display: block;
-  opacity: 0;
-  animation: fadeIn 0.5s forwards;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 200, 255, 0.15), inset 0 0 10px rgba(255, 255, 255, 0.03);
+  animation: fadeIn 0.6s ease;
 }
 
 @keyframes fadeIn {
-  to { opacity: 1; }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-/* Voice Wave Animation */
+
+h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 8px 0;
+  background: linear-gradient(90deg, #00f0ff, #0078ff);
+  
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(0, 220, 255, 0.5);
+  letter-spacing: 1px;
+  transition: all 0.4s ease;
+}
+h1:hover {
+  text-shadow: 0 0 16px rgba(0, 221, 255, 0.724);
+  transform: scale(1.05);
+}
+
+
+button,
+.btn {
+  margin: 5px;
+  border-radius: 25px;
+  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  background: linear-gradient(145deg, #0078ff, #00e0ff);
+  color: #fff;
+  border: none;
+  box-shadow: 0 3px 10px rgba(0, 200, 255, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+button:hover,
+.btn:hover {
+  background: linear-gradient(145deg, #00bfff, #0070ff);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 16px rgba(0, 220, 255, 0.7);
+}
+button:active {
+  transform: scale(0.97);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button.listening {
+  animation: glowPulse 1.4s infinite alternate;
+}
+@keyframes glowPulse {
+  from { box-shadow: 0 0 8px #00e0ff, 0 0 16px #00b0ff; }
+  to { box-shadow: 0 0 20px #00f7ff, 0 0 30px #00caff; }
+}
+
+#status {
+  font-weight: 600;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #bde7ff;
+  transition: 0.3s;
+}
+#status:hover {
+  color: #73e2ff;
+  text-shadow: 0 0 8px #00cfff;
+}
+.status-text.listening {
+  animation: glowText 1.3s infinite alternate;
+}
+@keyframes glowText {
+  from { color: #00e0ff; text-shadow: 0 0 6px #00e0ff; }
+  to { color: #66f7ff; text-shadow: 0 0 12px #00f0ff; }
+}
+
+#logBox {
+  background: rgba(15, 20, 30, 0.9);
+  border-radius: 16px;
+  margin: 10px auto;
+  padding: 8px;
+  text-align: left;
+  max-height: 120px;
+  overflow-y: auto;
+  box-shadow: inset 0 0 10px rgba(0, 200, 255, 0.15);
+  backdrop-filter: blur(6px);
+  transition: 0.4s ease;
+}
+#logBox:hover {
+  background: rgba(20, 30, 40, 0.9);
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.25);
+}
+#debugLog {
+  font-family: Consolas, monospace;
+  color: #d5ecff;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+#debugLog span.new-log {
+  animation: fadeInLog 0.4s forwards;
+}
+@keyframes fadeInLog { from { opacity: 0; } to { opacity: 1; } }
+
+
+#logBox::-webkit-scrollbar { width: 4px; }
+#logBox::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00eaff, #0078ff);
+  border-radius: 3px;
+}
+
 #voiceWave {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: 12px;
+  margin-top: 10px;
   width: 100%;
 }
-
-#voiceWave.hidden {
-  display: none;
-}
-
-#voiceWave .bar {
-  width: 5px;
-  background: linear-gradient(180deg, #3a3aff, #1a1aee);
+#voiceWave.hidden { display: none; }
+.bar {
+  width: 4px;
   border-radius: 3px;
-  animation: wave 1s infinite ease-in-out;
+  background: linear-gradient(180deg, #00f0ff, #007aff);
+  animation: wave 1.2s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(0,200,255,0.4);
+  transition: all 0.3s ease;
 }
-
-#voiceWave .bar:nth-child(1) { animation-delay: 0s; }
-#voiceWave .bar:nth-child(2) { animation-delay: 0.1s; }
-#voiceWave .bar:nth-child(3) { animation-delay: 0.2s; }
-#voiceWave .bar:nth-child(4) { animation-delay: 0.3s; }
-#voiceWave .bar:nth-child(5) { animation-delay: 0.4s; }
-
+.bar:hover {
+  background: linear-gradient(180deg, #66f7ff, #0099ff);
+  box-shadow: 0 0 14px rgba(0,250,255,0.7);
+}
+.bar:nth-child(1){animation-delay:0s;}
+.bar:nth-child(2){animation-delay:.1s;}
+.bar:nth-child(3){animation-delay:.2s;}
+.bar:nth-child(4){animation-delay:.3s;}
+.bar:nth-child(5){animation-delay:.4s;}
 @keyframes wave {
-  0%, 100% { height: 5px; }
-  50% { height: 25px; }
-}
-
-#logBox {
-  margin-top: 15px;
-  padding: 12px;
-  background: #1e1e1e;
-  border-radius: 6px;
-  text-align: left;
-  max-height: 150px;
-  overflow-y: auto;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#debugLog {
-  margin: 0;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #d4d4d4;
-  white-space: pre-wrap;
-}
-
-#logBox strong {
-  color: black;
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-
-/* Custom scrollbar for the log box */
-#logBox::-webkit-scrollbar {
-  width: 8px;
-}
-
-#logBox::-webkit-scrollbar-track {
-  background: #2d2d2d;
-  border-radius: 4px;
-}
-
-#logBox::-webkit-scrollbar-thumb {
-  background: #505050;
-  border-radius: 4px;
-}
-
-#logBox::-webkit-scrollbar-thumb:hover {
-  background: #606060;
+  0%,100%{height:3px;}
+  50%{height:18px;}
 }
