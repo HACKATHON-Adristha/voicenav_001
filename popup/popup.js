@@ -38,20 +38,38 @@ async function startListening() {
 
   // We don't strictly need 'async' here if we don't 'await' the sendMessage,
   // but it's good practice if you want to use promises later.
-  recognition.onresult = (event) => {
+ recognition.onresult = (event) => {
     const text = event.results[0][0].transcript;
     commandText.textContent = `"${text}"`;
-    statusEl.textContent = "Status: Sending to AI...";
+    statusEl.textContent = "Status: Processing...";
+
+    // Get the debug log element (ensure this exists in your HTML)
+    const debugLog = document.getElementById("debugLog");
 
     console.log("🗣 Sending to background:", text);
+    if (debugLog) debugLog.textContent += `📤 Sending: "${text}"\n`;
 
-    // Send raw text to background.js
-    // We use the standard callback here to avoid async/await confusion
-    chrome.runtime.sendMessage({ type: "PROCESS_TEXT", text: text }, () => {
-        // Check if the background script received it okay
+    // Send to background and wait for a detailed response
+    chrome.runtime.sendMessage({ type: "PROCESS_TEXT", text: text }, (response) => {
+        // 1. Handle fatal connection errors (background script crashed or unreachable)
         if (chrome.runtime.lastError) {
-             console.warn("Wait, background script didn't answer:", chrome.runtime.lastError.message);
-             statusEl.textContent = "Error: Background sleeping?";
+             const errMsg = chrome.runtime.lastError.message;
+             console.warn("Background unreachable:", errMsg);
+             statusEl.textContent = "Error: Background unreachable.";
+             if (debugLog) debugLog.textContent += `❌ Critical Error: ${errMsg}\n`;
+             return;
+        }
+
+        // 2. Handle the structured response from background.js
+        if (response && response.status === "success") {
+            statusEl.textContent = "Status: Success! ✅";
+            if (debugLog) debugLog.textContent += `✅ ${response.message}\n`;
+            // Optional: automatically close popup after success
+            // setTimeout(() => window.close(), 1000);
+        } else {
+            statusEl.textContent = "Status: Failed ❌";
+            // Show the specific error (e.g., "Please refresh page")
+            if (debugLog) debugLog.textContent += `⚠️ Error: ${response?.message || "Unknown error"}\n`;
         }
     });
   };
