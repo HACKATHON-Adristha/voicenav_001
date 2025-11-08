@@ -5,23 +5,24 @@ const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 const statusEl = document.getElementById("status");
 const commandText = document.getElementById("commandText");
+const debugLog = document.getElementById("debugLog");
 
 let recognition;
 
-// 🎤 Main Function: Start Listening
-// Marked 'async' because we use 'await' inside it for microphone permission
+// Start listening (requests mic permission first)
 async function startListening() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    alert("Sorry, your browser does not support speech recognition.");
+    alert("Sorry — speech recognition not supported in this browser.");
     return;
   }
 
-  // Request mic permission
+  // Request mic permission via navigator.mediaDevices so Chrome shows permission prompt
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch (err) {
     statusEl.textContent = "Error: Mic access denied.";
+    if (debugLog) debugLog.textContent += `❌ Mic access denied: ${err.message}\n`;
     return;
   }
 
@@ -29,72 +30,64 @@ async function startListening() {
   recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
+  recognition.continuous = false;
 
   recognition.onstart = () => {
-    statusEl.textContent = "Status: Listening...";
+    statusEl.textContent = "🎙 Listening...";
     startBtn.disabled = true;
     stopBtn.disabled = false;
+    if (debugLog) debugLog.textContent += `🎙 Start Listening\n`;
   };
 
-  // We don't strictly need 'async' here if we don't 'await' the sendMessage,
-  // but it's good practice if you want to use promises later.
- recognition.onresult = (event) => {
-    const text = event.results[0][0].transcript;
+  recognition.onresult = (event) => {
+    const text = event.results[0][0].transcript.trim();
     commandText.textContent = `"${text}"`;
-    statusEl.textContent = "Status: Processing...";
+    statusEl.textContent = "⏳ Processing...";
+    if (debugLog) debugLog.textContent += `📥 Heard: "${text}"\n`;
 
-    // Get the debug log element (ensure this exists in your HTML)
-    const debugLog = document.getElementById("debugLog");
+    // Send to background for intent parsing
+    chrome.runtime.sendMessage({ type: "PROCESS_TEXT", text }, (response) => {
+      if (chrome.runtime.lastError) {
+        const msg = chrome.runtime.lastError.message;
+        console.warn("Background unreachable:", msg);
+        statusEl.textContent = "Error: Background unreachable";
+        if (debugLog) debugLog.textContent += `⚠️ ${msg}\n`;
+        stopUI();
+        return;
+      }
 
-    console.log("🗣 Sending to background:", text);
-    if (debugLog) debugLog.textContent += `📤 Sending: "${text}"\n`;
+      if (response?.status === "success") {
+        statusEl.textContent = "✅ Success";
+        if (debugLog) debugLog.textContent += `✅ ${response.message}\n`;
+      } else {
+        statusEl.textContent = "❌ Failed";
+        if (debugLog) debugLog.textContent += `⚠️ ${response?.message || "Unknown error"}\n`;
+      }
 
-    // Send to background and wait for a detailed response
-    chrome.runtime.sendMessage({ type: "PROCESS_TEXT", text: text }, (response) => {
-        // 1. Handle fatal connection errors (background script crashed or unreachable)
-        if (chrome.runtime.lastError) {
-             const errMsg = chrome.runtime.lastError.message;
-             console.warn("Background unreachable:", errMsg);
-             statusEl.textContent = "Error: Background unreachable.";
-             if (debugLog) debugLog.textContent += `❌ Critical Error: ${errMsg}\n`;
-             return;
-        }
-
-        // 2. Handle the structured response from background.js
-        if (response && response.status === "success") {
-            statusEl.textContent = "Status: Success! ✅";
-            if (debugLog) debugLog.textContent += `✅ ${response.message}\n`;
-            // Optional: automatically close popup after success
-            // setTimeout(() => window.close(), 1000);
-        } else {
-            statusEl.textContent = "Status: Failed ❌";
-            // Show the specific error (e.g., "Please refresh page")
-            if (debugLog) debugLog.textContent += `⚠️ Error: ${response?.message || "Unknown error"}\n`;
-        }
+      // keep popup open so user sees status; popup will not auto-close
     });
   };
 
   recognition.onerror = (event) => {
     console.error("Recognition error:", event.error);
     statusEl.textContent = "Error: " + event.error;
+    if (debugLog) debugLog.textContent += `❌ Recognition error: ${event.error}\n`;
     stopUI();
   };
 
   recognition.onend = () => {
-    if (statusEl.textContent === "Status: Listening...") {
-        statusEl.textContent = "Status: Idle";
-    }
+    // ensure UI buttons restored
     stopUI();
+    if (statusEl.textContent === "🎙 Listening...") statusEl.textContent = "Idle";
+    if (debugLog) debugLog.textContent += `🔚 Recognition ended\n`;
   };
 
   recognition.start();
 }
 
 function stopListening() {
-  if (recognition) {
-    recognition.stop();
-    statusEl.textContent = "Status: Stopped.";
-  }
+  if (recognition) recognition.stop();
+  statusEl.textContent = "Stopped.";
   stopUI();
 }
 
@@ -103,7 +96,6 @@ function stopUI() {
   stopBtn.disabled = true;
 }
 
-// Event Listeners
-// These don't need to be async unless you await startListening() inside them.
+// Attach listeners
 startBtn.addEventListener("click", startListening);
 stopBtn.addEventListener("click", stopListening);
